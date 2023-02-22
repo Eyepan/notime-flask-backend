@@ -91,8 +91,12 @@ def add_user_notebook(user_id):
 def rename_notebook(user_id, notebook_id):
     notebook = Notebook.query.filter_by(
         id=notebook_id, user_id=user_id).first()
-    notebook.title = request.json['title']
-    db.session.commit()
+    if notebook:
+        notebook.title = request.json['title']
+        db.session.commit()
+        return {"message": "Notebook renamed successfully"}, 201
+    else:
+        return {'error': "Notebook not found or user is not authorized"}, 404
 
 
 @app.route('/api/users/<user_id>/notebooks/<notebook_id>', methods=['DELETE'])
