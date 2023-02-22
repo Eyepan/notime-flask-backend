@@ -86,6 +86,15 @@ def add_user_notebook(user_id):
     return {"message": "Notebook added successfully"}, 201
 
 
+@app.route('/api/users/<user_id>/notebooks/<notebook_id>', methods=['PUT'])
+@cross_origin()
+def rename_notebook(user_id, notebook_id):
+    notebook = Notebook.query.filter_by(
+        id=notebook_id, user_id=user_id).first()
+    notebook.title = request.json['title']
+    db.session.commit()
+
+
 @app.route('/api/users/<user_id>/notebooks/<notebook_id>', methods=['DELETE'])
 @cross_origin()
 def delete_notebook(user_id, notebook_id):
@@ -107,7 +116,10 @@ def get_notebook_pages(user_id, notebook_id):
     if not notebook:
         return {"error": "Notebook not found or user is not authorized"}, 404
     pages = Page.query.filter_by(notebook_id=notebook_id).all()
-    return {'pages': [{'id': page.id, 'title': page.title, 'content': page.content} for page in pages]}
+    return {
+        'id': notebook.id,
+        'title': notebook.title,
+        'pages': [{'id': page.id, 'title': page.title, 'content': page.content} for page in pages]}
 
 
 @app.route('/api/users/<user_id>/notebooks/<notebook_id>/pages', methods=['POST'])
